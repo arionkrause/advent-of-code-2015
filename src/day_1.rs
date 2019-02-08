@@ -26,56 +26,56 @@ pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
 
 #[cfg(test)]
 #[test]
-fn test_part_1_1() {
+fn part_1_test_1() {
     assert_eq!(solve("(())").0.unwrap(), 0);
 }
 
 #[test]
-fn test_part_1_2() {
+fn part_1_test_2() {
     assert_eq!(solve("()()").0.unwrap(), 0);
 }
 
 #[test]
-fn test_part_1_3() {
+fn part_1_test_3() {
     assert_eq!(solve("(((").0.unwrap(), 3);
 }
 
 #[test]
-fn test_part_1_4() {
+fn part_1_test_4() {
     assert_eq!(solve("(()(()(").0.unwrap(), 3);
 }
 
 #[test]
-fn test_part_1_5() {
+fn part_1_test_5() {
     assert_eq!(solve("))(((((").0.unwrap(), 3);
 }
 
 #[test]
-fn test_part_1_6() {
+fn part_1_test_6() {
     assert_eq!(solve("())").0.unwrap(), -1);
 }
 
 #[test]
-fn test_part_1_7() {
+fn part_1_test_7() {
     assert_eq!(solve("))(").0.unwrap(), -1);
 }
 
 #[test]
-fn test_part_1_8() {
+fn part_1_test_8() {
     assert_eq!(solve(")))").0.unwrap(), -3);
 }
 
 #[test]
-fn test_part_1_9() {
+fn part_1_test_9() {
     assert_eq!(solve(")())())").0.unwrap(), -3);
 }
 
 #[test]
-fn test_part_2_1() {
+fn part_2_test_1() {
     assert_eq!(solve(")").1.unwrap(), 1);
 }
 
 #[test]
-fn test_part_2_2() {
+fn part_2_test_2() {
     assert_eq!(solve("()())").1.unwrap(), 5);
 }

@@ -209,7 +209,7 @@ fn main() -> Result<(), Error> {
     }
 
     let after = before.elapsed();
-    println!("Total duration: {} ms", after.as_secs() * 1000 + (after.subsec_nanos() / 1_000_000) as u64);
+    println!("Total duration: {} ms.", after.as_secs() * 1000 + (after.subsec_nanos() / 1_000_000) as u64);
     Ok(())
 }
 
