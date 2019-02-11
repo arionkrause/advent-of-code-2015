@@ -47,7 +47,7 @@ pub fn solve(input: &str) -> (Option<u32>, Option<u32>) {
     }
 
     if part_2.is_some() {
-        print!(" Part 2: {}.", part_2.unwrap());
+        println!(" Part 2: {}.", part_2.unwrap());
     }
 
     (part_1, part_2)
@@ -67,21 +67,25 @@ fn decode_input(input: &str) -> Vec<Box> {
 
 #[cfg(test)]
 #[test]
+#[ignore]
 fn part_1_test_1() {
     assert_eq!(solve("2x3x4").0.unwrap(), 58);
 }
 
 #[test]
+#[ignore]
 fn part_1_test_2() {
     assert_eq!(solve("1x1x10").0.unwrap(), 43);
 }
 
 #[test]
+#[ignore]
 fn part_2_test_1() {
     assert_eq!(solve("2x3x4").1.unwrap(), 34);
 }
 
 #[test]
+#[ignore]
 fn part_2_test_2() {
     assert_eq!(solve("1x1x10").1.unwrap(), 14);
 }

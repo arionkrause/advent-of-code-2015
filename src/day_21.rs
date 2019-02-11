@@ -8,7 +8,7 @@ pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
     }
 
     if part_2.is_some() {
-        print!(" Part 2: {}.", part_2.unwrap());
+        println!(" Part 2: {}.", part_2.unwrap());
     }
 
     (part_1, part_2)
@@ -16,7 +16,9 @@ pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
 
 #[cfg(test)]
 #[test]
+#[ignore]
 fn part_1_test_1() {}
 
 #[test]
+#[ignore]
 fn part_2_test_1() {}
