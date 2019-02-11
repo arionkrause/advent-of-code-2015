@@ -1,4 +1,4 @@
-pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
+pub fn solve(input: &str) -> (Option<i32>, Option<usize>) {
     print!("Day {}", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
     let mut part_2 = None;
     let mut floor = 0;
@@ -11,7 +11,7 @@ pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
         };
 
         if floor < 0 && part_2.is_none() {
-            part_2 = Some(index as i32 + 1);
+            part_2 = Some(index + 1);
         }
     }
 

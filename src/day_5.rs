@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
+pub fn solve(input: &str) -> (Option<usize>, Option<usize>) {
     print!("Day {}", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
     let mut part_1 = Some(part_1(&input));
     let mut part_2 = Some(part_2(&input));
@@ -16,7 +16,7 @@ pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
     (part_1, part_2)
 }
 
-fn part_1(input: &str) -> i32 {
+fn part_1(input: &str) -> usize {
     let vowels = String::from("aeiou");
 
     input.lines().filter(|line| {
@@ -53,10 +53,10 @@ fn part_1(input: &str) -> i32 {
         }
 
         true
-    }).count() as i32
+    }).count()
 }
 
-fn part_2(input: &str) -> i32 {
+fn part_2(input: &str) -> usize {
     input.lines().filter(|line| {
         let mut characters_pairs_indices = HashMap::new();
 
@@ -98,7 +98,7 @@ fn part_2(input: &str) -> i32 {
         }
 
         true
-    }).count() as i32
+    }).count()
 }
 
 #[cfg(test)]

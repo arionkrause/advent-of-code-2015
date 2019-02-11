@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
+pub fn solve(input: &str) -> (Option<usize>, Option<usize>) {
     print!("Day {}", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
     let mut part_1 = Some(part_1(&input));
     let mut part_2 = Some(part_2(&input));
@@ -16,7 +16,7 @@ pub fn solve(input: &str) -> (Option<i32>, Option<i32>) {
     (part_1, part_2)
 }
 
-fn part_1(input: &str) -> i32 {
+fn part_1(input: &str) -> usize {
     let mut position = (0, 0);
     let mut visited_positions = HashMap::new();
     visited_positions.insert(position.clone(), 1);
@@ -35,10 +35,10 @@ fn part_1(input: &str) -> i32 {
                 .or_insert(1);
     });
 
-    visited_positions.iter().len() as i32
+    visited_positions.iter().len()
 }
 
-fn part_2(input: &str) -> i32 {
+fn part_2(input: &str) -> usize {
     let mut position_santa = (0, 0);
     let mut position_robo_santa = (0, 0);
     let mut visited_positions = HashMap::new();
@@ -64,7 +64,7 @@ fn part_2(input: &str) -> i32 {
                 .or_insert(1);
     });
 
-    visited_positions.iter().len() as i32
+    visited_positions.iter().len()
 }
 
 #[cfg(test)]
