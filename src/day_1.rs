@@ -1,92 +1,90 @@
-pub fn solve(input: &str) -> (Option<i32>, Option<usize>) {
-    print!("Day {}", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
-    let mut part_2 = None;
-    let mut floor = 0;
+pub fn solve(input: &str) {
+    println!("Day {}.", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
+    println!("Part 1: {}.", part_1::solve(&input));
+    println!("Part 2: {}.", part_2::solve(&input));
+    println!();
+}
 
-    for (index, direction) in input.chars().enumerate() {
-        match direction {
-            '(' => floor += 1,
-            ')' => floor -= 1,
-            _ => panic!(),
-        };
+mod part_1 {
+    pub fn solve(input: &str) -> isize {
+        (input.chars().filter(|&c| c == '(').count() as isize
+                - input.chars().filter(|&c| c == ')').count() as isize)
+    }
 
-        if floor < 0 && part_2.is_none() {
-            part_2 = Some(index + 1);
+    #[cfg(test)]
+    #[test]
+    fn test_1() {
+        assert_eq!(solve("(())"), 0);
+    }
+
+    #[test]
+    fn test_2() {
+        assert_eq!(solve("()()"), 0);
+    }
+
+    #[test]
+    fn test_3() {
+        assert_eq!(solve("((("), 3);
+    }
+
+    #[test]
+    fn test_4() {
+        assert_eq!(solve("(()(()("), 3);
+    }
+
+    #[test]
+    fn test_5() {
+        assert_eq!(solve("))((((("), 3);
+    }
+
+    #[test]
+    fn test_6() {
+        assert_eq!(solve("())"), -1);
+    }
+
+    #[test]
+    fn test_7() {
+        assert_eq!(solve("))("), -1);
+    }
+
+    #[test]
+    fn test_8() {
+        assert_eq!(solve(")))"), -3);
+    }
+
+    #[test]
+    fn test_9() {
+        assert_eq!(solve(")())())"), -3);
+    }
+}
+
+mod part_2 {
+    pub fn solve(input: &str) -> usize {
+        let mut floor = 0;
+
+        for (index, direction) in input.chars().enumerate() {
+            match direction {
+                '(' => floor += 1,
+                ')' => floor -= 1,
+                _ => panic!(),
+            };
+
+            if floor < 0 {
+                return index + 1;
+            }
         }
+
+        panic!()
     }
 
-    print!(" - Part 1: {}.", floor);
-
-    if part_2.is_some() {
-        println!(" Part 2: {}.", part_2.unwrap());
+    #[cfg(test)]
+    #[test]
+    fn test_1() {
+        assert_eq!(solve(")"), 1);
     }
 
-    (Some(floor), part_2)
-}
-
-#[cfg(test)]
-#[test]
-#[ignore]
-fn part_1_test_1() {
-    assert_eq!(solve("(())").0.unwrap(), 0);
-}
-
-#[test]
-#[ignore]
-fn part_1_test_2() {
-    assert_eq!(solve("()()").0.unwrap(), 0);
-}
-
-#[test]
-#[ignore]
-fn part_1_test_3() {
-    assert_eq!(solve("(((").0.unwrap(), 3);
-}
-
-#[test]
-#[ignore]
-fn part_1_test_4() {
-    assert_eq!(solve("(()(()(").0.unwrap(), 3);
-}
-
-#[test]
-#[ignore]
-fn part_1_test_5() {
-    assert_eq!(solve("))(((((").0.unwrap(), 3);
-}
-
-#[test]
-#[ignore]
-fn part_1_test_6() {
-    assert_eq!(solve("())").0.unwrap(), -1);
-}
-
-#[test]
-#[ignore]
-fn part_1_test_7() {
-    assert_eq!(solve("))(").0.unwrap(), -1);
-}
-
-#[test]
-#[ignore]
-fn part_1_test_8() {
-    assert_eq!(solve(")))").0.unwrap(), -3);
-}
-
-#[test]
-#[ignore]
-fn part_1_test_9() {
-    assert_eq!(solve(")())())").0.unwrap(), -3);
-}
-
-#[test]
-#[ignore]
-fn part_2_test_1() {
-    assert_eq!(solve(")").1.unwrap(), 1);
-}
-
-#[test]
-#[ignore]
-fn part_2_test_2() {
-    assert_eq!(solve("()())").1.unwrap(), 5);
+    #[test]
+    fn test_2() {
+        assert_eq!(solve("()())"), 5);
+    }
 }
