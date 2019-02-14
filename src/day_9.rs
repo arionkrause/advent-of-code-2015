@@ -1,9 +1,10 @@
 use std::collections::HashMap;
+use std::collections::VecDeque;
 
 pub fn solve(input: &str) {
     println!("Day {}.", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
     println!("Part 1: {}.", part_1::solve(&input));
-//    println!("Part 2: {}.", part_2::solve(&input));
+    println!("Part 2: {}.", part_2::solve(&input));
     println!();
 }
 
@@ -22,7 +23,7 @@ fn decode_input(input: &str) -> HashMap<usize, Vec<(usize, usize)>> {
             *index
         } else {
             locations_indices.insert(from, locations_indices.len());
-            locations.insert(locations_indices.len() - 1,Vec::new());
+            locations.insert(locations_indices.len() - 1, Vec::new());
             locations_indices.len() - 1
         };
 
@@ -30,7 +31,7 @@ fn decode_input(input: &str) -> HashMap<usize, Vec<(usize, usize)>> {
             *index
         } else {
             locations_indices.insert(to, locations_indices.len());
-            locations.insert(locations_indices.len() - 1,Vec::new());
+            locations.insert(locations_indices.len() - 1, Vec::new());
             locations_indices.len() - 1
         };
 
@@ -41,44 +42,43 @@ fn decode_input(input: &str) -> HashMap<usize, Vec<(usize, usize)>> {
     locations
 }
 
-mod part_1 {
-    use crate::day_9::decode_input;
-    use std::collections::VecDeque;
-    use std::collections::HashMap;
+pub fn routes_distances(input: &str) -> Vec<usize> {
+    let locations = decode_input(&input);
+    let mut routes_distances = Vec::new();
+    let mut queue: VecDeque<(usize, Vec<usize>, usize)> = locations.iter().map(|(&key, _)| (key, vec![key], 0)).collect();
 
-    pub fn solve(input: &str) -> usize {
-        let locations = decode_input(&input);
-        shortest_route_total_distance(&locations)
-    }
+    loop {
+        if queue.is_empty() {
+            break;
+        }
 
-    fn shortest_route_total_distance(locations: &HashMap<usize, Vec<(usize, usize)>>) -> usize {
-        let mut routes_distances = Vec::new();
-        let mut queue: VecDeque<(usize, Vec<usize>, usize)> = locations.iter().map(|(&key, _)| (key, vec![key], 0)).collect();
+        let (location, visited_locations, distance) = queue.pop_front().unwrap();
 
-        loop {
-            if queue.is_empty() {
-                break;
-            }
+        if visited_locations.len() == locations.len() {
+            routes_distances.push(distance);
+            continue;
+        }
 
-            let (location, visited_locations, distance) = queue.pop_front().unwrap();
-
-            if visited_locations.len() == locations.len() {
-                routes_distances.push(distance);
+        for (destination, destination_distance) in locations.get(&location).unwrap() {
+            if visited_locations.contains(destination) {
                 continue;
             }
 
-            for (destination, destination_distance) in locations.get(&location).unwrap() {
-                if visited_locations.contains(destination) {
-                    continue;
-                }
-
-                let mut new_visited_locations = visited_locations.clone();
-                new_visited_locations.push(location);
-                queue.push_back((*destination, new_visited_locations, distance + destination_distance));
-            }
+            let mut new_visited_locations = visited_locations.clone();
+            new_visited_locations.push(location);
+            queue.push_back((*destination, new_visited_locations, distance + destination_distance));
         }
+    }
 
-        *routes_distances.iter().min().unwrap()
+    routes_distances.dedup();
+    routes_distances
+}
+
+mod part_1 {
+    use crate::day_9::routes_distances;
+
+    pub fn solve(input: &str) -> usize {
+        *routes_distances(&input).iter().min().unwrap()
     }
 
     #[cfg(test)]
@@ -92,14 +92,20 @@ Dublin to Belfast = 141";
     }
 }
 
-//mod part_2 {
-//    pub fn solve(input: &str) -> usize {
-//        0
-//    }
-//
-//    #[cfg(test)]
-//    #[test]
-//    fn test_1() {
-////        assert_eq!(solve(&""), );
-//    }
-//}
+mod part_2 {
+    use crate::day_9::routes_distances;
+
+    pub fn solve(input: &str) -> usize {
+        *routes_distances(&input).iter().max().unwrap()
+    }
+
+    #[cfg(test)]
+    #[test]
+    fn test_1() {
+        let input = "London to Dublin = 464
+London to Belfast = 518
+Dublin to Belfast = 141";
+
+        assert_eq!(solve(&input), 982);
+    }
+}
