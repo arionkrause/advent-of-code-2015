@@ -1,12 +1,5 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
-struct Path {
-    left: usize,
-    right: usize,
-    distance: usize,
-}
-
 pub fn solve(input: &str) {
     println!("Day {}.", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
     println!("Part 1: {}.", part_1::solve(&input));
@@ -14,98 +7,78 @@ pub fn solve(input: &str) {
     println!();
 }
 
-fn decode_input(input: &str) -> Vec<Path> {
+fn decode_input(input: &str) -> HashMap<usize, Vec<(usize, usize)>> {
     let re = regex::Regex::new(r"^(?P<from>\w+) to (?P<to>\w+) = (?P<distance>\d+)$").unwrap();
     let mut locations = HashMap::new();
-    let mut paths = Vec::new();
+    let mut locations_indices = HashMap::new();
 
     for line in input.lines() {
         let captures = re.captures(&line).unwrap();
-        let left = captures.name("from").unwrap().as_str().to_string();
-        let right = captures.name("to").unwrap().as_str().to_string();
-        let distance = captures.name("distance").unwrap().as_str().parse().unwrap();
+        let from = captures.name("from").unwrap().as_str().to_string();
+        let to = captures.name("to").unwrap().as_str().to_string();
+        let distance: usize = captures.name("distance").unwrap().as_str().parse().unwrap();
 
-        let index_left = if let Some(index) = locations.get(&left) {
+        let index_from = if let Some(index) = locations_indices.get(&from) {
             *index
         } else {
-            locations.insert(left, locations.len());
-            locations.len() - 1
+            locations_indices.insert(from, locations_indices.len());
+            locations.insert(locations_indices.len() - 1,Vec::new());
+            locations_indices.len() - 1
         };
 
-        let index_right = if let Some(index) = locations.get(&right) {
+        let index_to = if let Some(index) = locations_indices.get(&to) {
             *index
         } else {
-            locations.insert(right, locations.len());
-            locations.len() - 1
+            locations_indices.insert(to, locations_indices.len());
+            locations.insert(locations_indices.len() - 1,Vec::new());
+            locations_indices.len() - 1
         };
 
-        paths.push(Path {
-            left: index_left,
-            right: index_right,
-            distance,
-        });
+        locations.entry(index_from).and_modify(|distances| distances.push((index_to, distance)));
+        locations.entry(index_to).and_modify(|distances| distances.push((index_from, distance)));
     }
 
-    paths
+    locations
 }
 
 mod part_1 {
     use crate::day_9::decode_input;
-    use crate::day_9::Path;
     use std::collections::VecDeque;
+    use std::collections::HashMap;
 
     pub fn solve(input: &str) -> usize {
-        let paths = decode_input(&input);
-        shortest_route_total_distance(&paths)
+        let locations = decode_input(&input);
+        shortest_route_total_distance(&locations)
     }
 
-    fn shortest_route_total_distance(paths: &Vec<Path>) -> usize {
-        let mut shortest_route_total_distance = None;
-        let mut locations = Vec::new();
-
-        for path in paths {
-            if !locations.contains(&path.left) {
-                locations.push(path.left);
-            }
-
-            if !locations.contains(&path.right) {
-                locations.push(path.right);
-            }
-        }
-
-        let mut queue: VecDeque<(Vec<usize>, usize)> = locations.iter().map(|&location| (vec![location], 0)).collect();
+    fn shortest_route_total_distance(locations: &HashMap<usize, Vec<(usize, usize)>>) -> usize {
+        let mut routes_distances = Vec::new();
+        let mut queue: VecDeque<(usize, Vec<usize>, usize)> = locations.iter().map(|(&key, _)| (key, vec![key], 0)).collect();
 
         loop {
             if queue.is_empty() {
                 break;
             }
 
-            let (route, distance) = queue.pop_front().unwrap();
+            let (location, visited_locations, distance) = queue.pop_front().unwrap();
 
-            if route.len() == locations.len()
-                    && (shortest_route_total_distance.is_none()
-                    || distance < shortest_route_total_distance.unwrap()) {
-                shortest_route_total_distance = Some(distance);
+            if visited_locations.len() == locations.len() {
+                routes_distances.push(distance);
+                continue;
             }
 
-            for path in paths {
-                if path.left == *route.last().unwrap()
-                        && !route.contains(&path.right) {
-                    let mut new_route = route.clone();
-                    new_route.push(path.right);
-                    queue.push_back((new_route, distance + path.distance));
+            for (destination, destination_distance) in locations.get(&location).unwrap() {
+                if visited_locations.contains(destination) {
+                    continue;
                 }
 
-                if path.right == *route.last().unwrap()
-                        && !route.contains(&path.left) {
-                    let mut new_route = route.clone();
-                    new_route.push(path.left);
-                    queue.push_back((new_route, distance + path.distance));
-                }
+                let mut new_visited_locations = visited_locations.clone();
+                new_visited_locations.push(location);
+                queue.push_back((*destination, new_visited_locations, distance + destination_distance));
             }
         }
 
-        shortest_route_total_distance.unwrap()
+        *routes_distances.iter().min().unwrap()
     }
 
     #[cfg(test)]
