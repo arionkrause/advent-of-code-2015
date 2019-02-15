@@ -16,7 +16,7 @@ mod day_8;
 mod day_9;
 mod day_10;
 mod day_11;
-//mod day_12;
+mod day_12;
 //mod day_13;
 //mod day_14;
 //mod day_15;
@@ -91,10 +91,10 @@ fn main() -> Result<(), Error> {
     if file_exists("day_11") && (run_all || &arguments[1] == "day_11") {
         day_11::solve(&read_file("day_11")?);
     }
-//
-//    if file_exists("day_12") && (run_all || &arguments[1] == "day_12") {
-//        day_12::solve(&read_file("day_12")?);
-//    }
+
+    if file_exists("day_12") && (run_all || &arguments[1] == "day_12") {
+        day_12::solve(&read_file("day_12")?);
+    }
 //
 //    if file_exists("day_13") && (run_all || &arguments[1] == "day_13") {
 //        day_13::solve(&read_file("day_13")?);
