@@ -316,16 +316,17 @@ mod part_1 {
     use crate::day_21::get_battles;
 
     pub fn solve(input: &str) -> u16 {
-        let mut minimum_gold_spent = None;
-
-        for battle in get_battles(&input).iter_mut() {
-            if battle.fight_until_battle_ends_and_return_true_if_player_has_won()
-                    && (minimum_gold_spent.is_none() || battle.player.amount_gold_spent < minimum_gold_spent.unwrap()) {
-                minimum_gold_spent = Some(battle.player.amount_gold_spent);
+        get_battles(&input).iter_mut().map(|battle| {
+            if battle.fight_until_battle_ends_and_return_true_if_player_has_won() {
+                Some(battle.player.amount_gold_spent)
+            } else {
+                None
             }
-        }
-
-        minimum_gold_spent.unwrap()
+        }).collect::<Vec<Option<u16>>>()
+                .into_iter()
+                .filter_map(|amount_gold_spent| amount_gold_spent)
+                .min()
+                .unwrap()
     }
 }
 
@@ -333,15 +334,16 @@ mod part_2 {
     use crate::day_21::get_battles;
 
     pub fn solve(input: &str) -> u16 {
-        let mut maximum_gold_spent = None;
-
-        for battle in get_battles(&input).iter_mut() {
-            if !battle.fight_until_battle_ends_and_return_true_if_player_has_won()
-                    && (maximum_gold_spent.is_none() || battle.player.amount_gold_spent > maximum_gold_spent.unwrap()) {
-                maximum_gold_spent = Some(battle.player.amount_gold_spent);
+        get_battles(&input).iter_mut().map(|battle| {
+            if !battle.fight_until_battle_ends_and_return_true_if_player_has_won() {
+                Some(battle.player.amount_gold_spent)
+            } else {
+                None
             }
-        }
-
-        maximum_gold_spent.unwrap()
+        }).collect::<Vec<Option<u16>>>()
+                .into_iter()
+                .filter_map(|amount_gold_spent| amount_gold_spent)
+                .max()
+                .unwrap()
     }
 }
