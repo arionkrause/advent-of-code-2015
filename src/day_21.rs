@@ -21,20 +21,20 @@ impl Player {
         let mut damage_score = 0;
         damage_score += weapon.damage;
 
-        if ring_1.is_some() {
-            let ring_1_clone = ring_1.clone().unwrap();
-
-            if ring_1_clone.damage.is_some() {
-                damage_score += ring_1_clone.damage.unwrap();
-            }
+        match ring_1 {
+            Some(ring) => match ring.damage {
+                Some(damage) => damage_score += damage,
+                None => {}
+            },
+            None => {}
         }
 
-        if ring_2.is_some() {
-            let ring_2_clone = ring_2.clone().unwrap();
-
-            if ring_2_clone.damage.is_some() {
-                damage_score += ring_2_clone.damage.unwrap();
-            }
+        match ring_2 {
+            Some(ring) => match ring.damage {
+                Some(damage) => damage_score += damage,
+                None => {}
+            },
+            None => {}
         }
 
         damage_score
@@ -43,46 +43,50 @@ impl Player {
     fn get_armor_score(armor: &Option<Armor>, ring_1: &Option<Ring>, ring_2: &Option<Ring>) -> u8 {
         let mut armor_score = 0;
 
-        if armor.is_some() {
-            armor_score += armor.clone().unwrap().armor;
+        match armor {
+            Some(armor) => armor_score += armor.armor,
+            None => {}
         }
 
-        if ring_1.is_some() {
-            let ring_1_clone = ring_1.clone().unwrap();
-
-            if ring_1_clone.armor.is_some() {
-                armor_score += ring_1_clone.armor.unwrap();
-            }
+        match ring_1 {
+            Some(ring) => match ring.armor {
+                Some(armor) => armor_score += armor,
+                None => {}
+            },
+            None => {}
         }
 
-        if ring_2.is_some() {
-            let ring_2_clone = ring_2.clone().unwrap();
-
-            if ring_2_clone.armor.is_some() {
-                armor_score += ring_2_clone.armor.unwrap();
-            }
+        match ring_2 {
+            Some(ring) => match ring.armor {
+                Some(armor) => armor_score += armor,
+                None => {}
+            },
+            None => {}
         }
 
         armor_score
     }
 
     fn get_amount_gold_spent(weapon: &Weapon, armor: &Option<Armor>, ring_1: &Option<Ring>, ring_2: &Option<Ring>) -> u16 {
-        let mut gold_spent = 0;
-        gold_spent += weapon.cost as u16;
+        let mut amount_gold_spent = 0;
+        amount_gold_spent += weapon.cost as u16;
 
-        if armor.is_some() {
-            gold_spent += armor.clone().unwrap().cost as u16;
+        match armor {
+            Some(armor) => amount_gold_spent += armor.cost as u16,
+            None => {}
         }
 
-        if ring_1.is_some() {
-            gold_spent += ring_1.clone().unwrap().cost as u16;
+        match ring_1 {
+            Some(ring) => amount_gold_spent += ring.cost as u16,
+            None => {}
         }
 
-        if ring_2.is_some() {
-            gold_spent += ring_2.clone().unwrap().cost as u16;
+        match ring_2 {
+            Some(ring) => amount_gold_spent += ring.cost as u16,
+            None => {}
         }
 
-        gold_spent
+        amount_gold_spent
     }
 }
 
@@ -91,13 +95,11 @@ struct Weapon {
     damage: u8,
 }
 
-#[derive(Clone)]
 struct Armor {
     cost: u8,
     armor: u8,
 }
 
-#[derive(Clone)]
 struct Ring {
     name: String,
     cost: u8,
