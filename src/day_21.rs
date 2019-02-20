@@ -86,16 +86,13 @@ impl Player {
     }
 }
 
-#[derive(Clone)]
 struct Weapon {
-    name: String,
     cost: u8,
     damage: u8,
 }
 
 #[derive(Clone)]
 struct Armor {
-    name: String,
     cost: u8,
     armor: u8,
 }
@@ -214,27 +211,22 @@ fn decode_input(input: &str) -> Boss {
 fn get_weapons() -> Vec<Weapon> {
     vec![
         Weapon {
-            name: "Dagger".to_string(),
             cost: 8,
             damage: 4,
         },
         Weapon {
-            name: "Shortsword".to_string(),
             cost: 10,
             damage: 5,
         },
         Weapon {
-            name: "Warhammer".to_string(),
             cost: 25,
             damage: 6,
         },
         Weapon {
-            name: "Longsword".to_string(),
             cost: 40,
             damage: 7,
         },
         Weapon {
-            name: "Greataxe".to_string(),
             cost: 74,
             damage: 8,
         },
@@ -244,27 +236,22 @@ fn get_weapons() -> Vec<Weapon> {
 fn get_armors() -> Vec<Armor> {
     vec![
         Armor {
-            name: "Leather".to_string(),
             cost: 13,
             armor: 1,
         },
         Armor {
-            name: "Chainmail".to_string(),
             cost: 31,
             armor: 2,
         },
         Armor {
-            name: "Splintmail".to_string(),
             cost: 53,
             armor: 3,
         },
         Armor {
-            name: "Bandedmail".to_string(),
             cost: 75,
             armor: 4,
         },
         Armor {
-            name: "Platemail".to_string(),
             cost: 102,
             armor: 5,
         },
