@@ -113,39 +113,24 @@ impl PartialEq for Ring {
     }
 }
 
-#[derive(Clone)]
 struct Boss {
     hit_points: u8,
     damage_score: u8,
     armor_score: u8,
 }
 
-struct Battle {
-    player: Player,
-    boss: Boss,
-}
+fn player_wins_the_battle(player: &Player, boss: &Boss) -> bool {
+    let player_damage = match player.damage_score.checked_sub(boss.armor_score) {
+        Some(damage) => damage,
+        None => 1,
+    };
 
-impl Battle {
-    fn new(player: Player, boss: Boss) -> Battle {
-        Battle {
-            player,
-            boss,
-        }
-    }
+    let boss_damage = match boss.damage_score.checked_sub(player.armor_score) {
+        Some(damage) => damage,
+        None => 1,
+    };
 
-    fn player_wins_the_battle(&mut self) -> bool {
-        let player_damage = match self.player.damage_score.checked_sub(self.boss.armor_score) {
-            Some(damage) => damage,
-            None => 1,
-        };
-
-        let boss_damage = match self.boss.damage_score.checked_sub(self.player.armor_score) {
-            Some(damage) => damage,
-            None => 1,
-        };
-
-        (self.player.hit_points as f32 / boss_damage as f32).ceil() >= (self.boss.hit_points as f32 / player_damage as f32).ceil()
-    }
+    (player.hit_points as f32 / boss_damage as f32).ceil() >= (boss.hit_points as f32 / player_damage as f32).ceil()
 }
 
 pub fn solve(input: &str) {
@@ -155,8 +140,7 @@ pub fn solve(input: &str) {
     println!();
 }
 
-fn get_battles(input: &str) -> Vec<Battle> {
-    let boss = decode_input(&input);
+fn get_players() -> Vec<Player> {
     let weapons = get_weapons();
     let armors = get_armors();
     let rings = get_rings();
@@ -167,12 +151,12 @@ fn get_battles(input: &str) -> Vec<Battle> {
     let mut possible_rings = rings.into_iter().map(|r| Some(r)).collect::<Vec<Option<Ring>>>();
     possible_rings.push(None);
 
-    let mut battles = Vec::new();
+    let mut players = Vec::new();
 
     for weapon in weapons.iter() {
         for armor in possible_armors.iter() {
             for ring_1 in possible_rings.iter() {
-                battles.push(Battle::new(Player::new(&weapon, &armor, &ring_1, &None), boss.clone()));
+                players.push(Player::new(&weapon, &armor, &ring_1, &None));
 
                 if ring_1.is_some() {
                     for ring_2 in possible_rings.iter() {
@@ -180,14 +164,14 @@ fn get_battles(input: &str) -> Vec<Battle> {
                             continue;
                         }
 
-                        battles.push(Battle::new(Player::new(&weapon, &armor, &ring_1, &ring_2), boss.clone()));
+                        players.push(Player::new(&weapon, &armor, &ring_1, &ring_2));
                     }
                 }
             }
         }
     }
 
-    battles
+    players
 }
 
 fn decode_input(input: &str) -> Boss {
@@ -292,37 +276,41 @@ fn get_rings() -> Vec<Ring> {
 }
 
 mod part_1 {
-    use crate::day_21::get_battles;
+    use crate::day_21::decode_input;
+    use crate::day_21::get_players;
+    use crate::day_21::player_wins_the_battle;
 
     pub fn solve(input: &str) -> u16 {
-        get_battles(&input).iter_mut().map(|battle| {
-            if battle.player_wins_the_battle() {
-                Some(battle.player.amount_gold_spent)
-            } else {
-                None
+        let boss = decode_input(&input);
+        let mut players = get_players();
+        players.sort_by(|a, b| a.amount_gold_spent.cmp(&b.amount_gold_spent));
+
+        for player in players.iter() {
+            if player_wins_the_battle(&player, &boss) {
+                return player.amount_gold_spent;
             }
-        }).collect::<Vec<Option<u16>>>()
-                .into_iter()
-                .filter_map(|amount_gold_spent| amount_gold_spent)
-                .min()
-                .unwrap()
+        }
+
+        unreachable!()
     }
 }
 
 mod part_2 {
-    use crate::day_21::get_battles;
+    use crate::day_21::decode_input;
+    use crate::day_21::get_players;
+    use crate::day_21::player_wins_the_battle;
 
     pub fn solve(input: &str) -> u16 {
-        get_battles(&input).iter_mut().map(|battle| {
-            if !battle.player_wins_the_battle() {
-                Some(battle.player.amount_gold_spent)
-            } else {
-                None
+        let boss = decode_input(&input);
+        let mut players = get_players();
+        players.sort_by(|a, b| a.amount_gold_spent.cmp(&b.amount_gold_spent).reverse());
+
+        for player in players.iter() {
+            if !player_wins_the_battle(&player, &boss) {
+                return player.amount_gold_spent;
             }
-        }).collect::<Vec<Option<u16>>>()
-                .into_iter()
-                .filter_map(|amount_gold_spent| amount_gold_spent)
-                .max()
-                .unwrap()
+        }
+
+        unreachable!()
     }
 }
