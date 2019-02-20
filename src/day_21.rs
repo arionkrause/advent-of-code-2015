@@ -133,28 +133,18 @@ impl Battle {
         }
     }
 
-    fn fight_until_battle_ends_and_return_true_if_player_has_won(&mut self) -> bool {
-        loop {
-            let damage = match self.player.damage_score.checked_sub(self.boss.armor_score) {
-                Some(damage) => damage,
-                None => 1,
-            };
+    fn player_wins_the_battle(&mut self) -> bool {
+        let player_damage = match self.player.damage_score.checked_sub(self.boss.armor_score) {
+            Some(damage) => damage,
+            None => 1,
+        };
 
-            self.boss.hit_points = match self.boss.hit_points.checked_sub(damage) {
-                Some(hit_points) => hit_points,
-                None => return true,
-            };
+        let boss_damage = match self.boss.damage_score.checked_sub(self.player.armor_score) {
+            Some(damage) => damage,
+            None => 1,
+        };
 
-            let damage = match self.boss.damage_score.checked_sub(self.player.armor_score) {
-                Some(damage) => damage,
-                None => 1,
-            };
-
-            self.player.hit_points = match self.player.hit_points.checked_sub(damage) {
-                Some(hit_points) => hit_points,
-                None => return false,
-            };
-        }
+        (self.player.hit_points as f32 / boss_damage as f32).ceil() >= (self.boss.hit_points as f32 / player_damage as f32).ceil()
     }
 }
 
@@ -306,7 +296,7 @@ mod part_1 {
 
     pub fn solve(input: &str) -> u16 {
         get_battles(&input).iter_mut().map(|battle| {
-            if battle.fight_until_battle_ends_and_return_true_if_player_has_won() {
+            if battle.player_wins_the_battle() {
                 Some(battle.player.amount_gold_spent)
             } else {
                 None
@@ -324,7 +314,7 @@ mod part_2 {
 
     pub fn solve(input: &str) -> u16 {
         get_battles(&input).iter_mut().map(|battle| {
-            if !battle.fight_until_battle_ends_and_return_true_if_player_has_won() {
+            if !battle.player_wins_the_battle() {
                 Some(battle.player.amount_gold_spent)
             } else {
                 None
