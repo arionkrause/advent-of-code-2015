@@ -4,11 +4,7 @@ struct Player {
     hit_points: u8,
     damage_score: u8,
     armor_score: u8,
-//    weapon: Weapon,
-//    armor: Option<Armor>,
-//    ring_1: Option<Ring>,
-//    ring_2: Option<Ring>,
-    gold_spent: u16,
+    amount_gold_spent: u16,
 }
 
 impl Player {
@@ -17,11 +13,7 @@ impl Player {
             hit_points: 100,
             damage_score: Player::get_damage_score(&weapon, &ring_1, &ring_2),
             armor_score: Player::get_armor_score(&armor, &ring_1, &ring_2),
-//            weapon: weapon.clone(),
-//            armor: armor.clone(),
-//            ring_1: ring_1.clone(),
-//            ring_2: ring_2.clone(),
-            gold_spent: Player::get_gold_spent(&weapon, &armor, &ring_1, &ring_2),
+            amount_gold_spent: Player::get_amount_gold_spent(&weapon, &armor, &ring_1, &ring_2),
         }
     }
 
@@ -74,7 +66,7 @@ impl Player {
         armor_score
     }
 
-    fn get_gold_spent(weapon: &Weapon, armor: &Option<Armor>, ring_1: &Option<Ring>, ring_2: &Option<Ring>) -> u16 {
+    fn get_amount_gold_spent(weapon: &Weapon, armor: &Option<Armor>, ring_1: &Option<Ring>, ring_2: &Option<Ring>) -> u16 {
         let mut gold_spent = 0;
         gold_spent += weapon.cost as u16;
 
@@ -321,45 +313,35 @@ fn get_rings() -> Vec<Ring> {
 }
 
 mod part_1 {
-    use rayon::prelude::*;
     use crate::day_21::get_battles;
 
     pub fn solve(input: &str) -> u16 {
-        *get_battles(&input).par_iter_mut().map(|battle| {
-            if battle.fight_until_battle_ends_and_return_true_if_player_has_won() {
-                Some(battle.player.gold_spent)
-            } else {
-                None
+        let mut minimum_gold_spent = None;
+
+        for battle in get_battles(&input).iter_mut() {
+            if battle.fight_until_battle_ends_and_return_true_if_player_has_won()
+                    && (minimum_gold_spent.is_none() || battle.player.amount_gold_spent < minimum_gold_spent.unwrap()) {
+                minimum_gold_spent = Some(battle.player.amount_gold_spent);
             }
-        }).collect::<Vec<Option<u16>>>()
-                .iter()
-                .filter(|result| result.is_some())
-                .map(|result| result.unwrap())
-                .collect::<Vec<u16>>()
-                .iter()
-                .min()
-                .unwrap()
+        }
+
+        minimum_gold_spent.unwrap()
     }
 }
 
 mod part_2 {
-    use rayon::prelude::*;
     use crate::day_21::get_battles;
 
     pub fn solve(input: &str) -> u16 {
-        *get_battles(&input).par_iter_mut().map(|battle| {
-            if battle.fight_until_battle_ends_and_return_true_if_player_has_won() {
-                None
-            } else {
-                Some(battle.player.gold_spent)
+        let mut maximum_gold_spent = None;
+
+        for battle in get_battles(&input).iter_mut() {
+            if !battle.fight_until_battle_ends_and_return_true_if_player_has_won()
+                    && (maximum_gold_spent.is_none() || battle.player.amount_gold_spent > maximum_gold_spent.unwrap()) {
+                maximum_gold_spent = Some(battle.player.amount_gold_spent);
             }
-        }).collect::<Vec<Option<u16>>>()
-                .iter()
-                .filter(|result| result.is_some())
-                .map(|result| result.unwrap())
-                .collect::<Vec<u16>>()
-                .iter()
-                .max()
-                .unwrap()
+        }
+
+        maximum_gold_spent.unwrap()
     }
 }
