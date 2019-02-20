@@ -4,10 +4,10 @@ struct Player {
     hit_points: u8,
     damage_score: u8,
     armor_score: u8,
-    weapon: Weapon,
-    armor: Option<Armor>,
-    ring_1: Option<Ring>,
-    ring_2: Option<Ring>,
+//    weapon: Weapon,
+//    armor: Option<Armor>,
+//    ring_1: Option<Ring>,
+//    ring_2: Option<Ring>,
     gold_spent: u16,
 }
 
@@ -17,10 +17,10 @@ impl Player {
             hit_points: 100,
             damage_score: Player::get_damage_score(&weapon, &ring_1, &ring_2),
             armor_score: Player::get_armor_score(&armor, &ring_1, &ring_2),
-            weapon: weapon.clone(),
-            armor: armor.clone(),
-            ring_1: ring_1.clone(),
-            ring_2: ring_2.clone(),
+//            weapon: weapon.clone(),
+//            armor: armor.clone(),
+//            ring_1: ring_1.clone(),
+//            ring_2: ring_2.clone(),
             gold_spent: Player::get_gold_spent(&weapon, &armor, &ring_1, &ring_2),
         }
     }
