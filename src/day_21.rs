@@ -174,6 +174,7 @@ pub fn solve(input: &str) {
 }
 
 mod part_1 {
+    use rayon::prelude::*;
     use regex::Regex;
     use crate::day_21::Armor;
     use crate::day_21::Battle;
@@ -195,7 +196,6 @@ mod part_1 {
         possible_rings.push(None);
 
         let mut battles = Vec::new();
-        let mut wins = Vec::new();
 
         for weapon in weapons.iter() {
             for armor in possible_armors.iter() {
@@ -215,13 +215,20 @@ mod part_1 {
             }
         }
 
-        for battle in battles.iter_mut() {
+        *battles.par_iter_mut().map(|battle| {
             if battle.fight_until_battle_ends_and_return_true_if_player_has_won() {
-                wins.push(battle.player.gold_spent);
+                Some(battle.player.gold_spent)
+            } else {
+                None
             }
-        }
-
-        *wins.iter().min().unwrap()
+        }).collect::<Vec<Option<u16>>>()
+                .iter()
+                .filter(|result| result.is_some())
+                .map(|result| result.unwrap())
+                .collect::<Vec<u16>>()
+                .iter()
+                .min()
+                .unwrap()
     }
 
     fn decode_input(input: &str) -> Boss {

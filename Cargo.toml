@@ -5,6 +5,7 @@ authors = ["Arion Roberto Krause <arionkrause@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+rayon = "1.0.3"
 rust-crypto = "0.2.36"
 regex = "1.1.0"
 serde_json = "1.0.38"
