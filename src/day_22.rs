@@ -486,3 +486,270 @@ mod part_2 {
         get_minimum_amount_mana_points_spent(&input, player_hit_points, player_mana, print_log, hard_mode)
     }
 }
+
+// Procedural solving alternative
+// It's ~32 times faster, but less maintainable
+//
+//use regex::Regex;
+//use std::collections::VecDeque;
+//
+//#[derive(Clone, Debug)]
+//struct State {
+//    player_hit_points: i8,
+//    player_mana_points: i16,
+//    player_shield: bool,
+//    player_shield_turns_left: i8,
+//    player_recharge: bool,
+//    player_recharge_turns_left: i8,
+//    boss_hit_points: i8,
+//    boss_damage: i8,
+//    boss_poison: bool,
+//    boss_poison_turns_left: i8,
+//    amount_mana_points_spent: u16,
+//}
+//
+//pub fn solve(input: &str) {
+//    println!("Day {}.", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
+//    println!("Part 1: {}.", part_1::solve(&input));
+//    println!("Part 2: {}.", part_2::solve(&input));
+//    println!();
+//}
+//
+//fn decode_input(input: &str) -> (i8, i8) {
+//    let captures = Regex::new(r"^Hit Points: (?P<hit_points>\d+)\nDamage: (?P<damage>\d+)$").unwrap().captures(&input).unwrap();
+//    (captures.name("hit_points").unwrap().as_str().parse().unwrap(), captures.name("damage").unwrap().as_str().parse().unwrap())
+//}
+//
+//fn get_minimum_amount_mana_points_spent(input: &str, hard_mode: bool) -> u16 {
+//    let (boss_hit_points, boss_damage) = decode_input(&input);
+//    let mut minimum_amount_mana_points_spent = std::u16::MAX;
+//    let mut queue: VecDeque<State> = VecDeque::new();
+//
+//    queue.push_back(State {
+//        player_hit_points: 50,
+//        player_mana_points: 500,
+//        player_shield: false,
+//        player_shield_turns_left: 0,
+//        player_recharge: false,
+//        player_recharge_turns_left: 0,
+//        boss_hit_points,
+//        boss_damage,
+//        boss_poison: false,
+//        boss_poison_turns_left: 0,
+//        amount_mana_points_spent: 0,
+//    });
+//
+//    while let Some(mut state) = queue.pop_front() {
+//        if state.amount_mana_points_spent > minimum_amount_mana_points_spent {
+//            continue;
+//        }
+//
+//        if hard_mode {
+//            state.player_hit_points -= 1;
+//
+//            if state.player_hit_points <= 0 {
+//                continue;
+//            }
+//        }
+//
+//        // Apply effects
+//        if state.player_recharge {
+//            state.player_mana_points += 101;
+//            state.player_recharge_turns_left -= 1;
+//
+//            if state.player_recharge_turns_left == 0 {
+//                state.player_recharge = false;
+//            }
+//        }
+//
+//        if state.player_shield {
+//            state.player_shield_turns_left -= 1;
+//
+//            if state.player_shield_turns_left == 0 {
+//                state.player_shield = false;
+//            }
+//        }
+//
+//        if state.boss_poison {
+//            state.boss_hit_points -= 3;
+//
+//            if state.boss_hit_points <= 0 {
+//                if state.amount_mana_points_spent < minimum_amount_mana_points_spent {
+//                    minimum_amount_mana_points_spent = state.amount_mana_points_spent;
+//                }
+//
+//                continue;
+//            }
+//
+//            state.boss_poison_turns_left -= 1;
+//
+//            if state.boss_poison_turns_left == 0 {
+//                state.boss_poison = false;
+//            }
+//        }
+//
+//        // Player
+//        for spell_index in 0..5 {
+//            let mut state_clone = state.clone();
+//
+//            match spell_index {
+//                0 => {
+//                    state_clone.player_mana_points -= 53;
+//
+//                    if state_clone.player_mana_points < 0 {
+//                        continue;
+//                    }
+//
+//                    state_clone.amount_mana_points_spent += 53;
+//                    state_clone.boss_hit_points -= 4;
+//
+//                    if state_clone.boss_hit_points <= 0 {
+//                        if state_clone.amount_mana_points_spent < minimum_amount_mana_points_spent {
+//                            minimum_amount_mana_points_spent = state_clone.amount_mana_points_spent;
+//                        }
+//
+//                        continue;
+//                    }
+//                }
+//
+//                1 => {
+//                    state_clone.player_mana_points -= 73;
+//
+//                    if state_clone.player_mana_points < 0 {
+//                        continue;
+//                    }
+//
+//                    state_clone.amount_mana_points_spent += 73;
+//                    state_clone.boss_hit_points -= 2;
+//
+//                    if state_clone.boss_hit_points <= 0 {
+//                        if state_clone.amount_mana_points_spent < minimum_amount_mana_points_spent {
+//                            minimum_amount_mana_points_spent = state_clone.amount_mana_points_spent;
+//                        }
+//
+//                        continue;
+//                    }
+//
+//                    state_clone.player_hit_points += 2;
+//                }
+//
+//                2 => {
+//                    if state_clone.player_shield {
+//                        continue;
+//                    }
+//
+//                    state_clone.player_mana_points -= 113;
+//
+//                    if state_clone.player_mana_points < 0 {
+//                        continue;
+//                    }
+//
+//                    state_clone.amount_mana_points_spent += 113;
+//                    state_clone.player_shield = true;
+//                    state_clone.player_shield_turns_left = 6;
+//                }
+//
+//                3 => {
+//                    if state_clone.boss_poison {
+//                        continue;
+//                    }
+//
+//                    state_clone.player_mana_points -= 173;
+//
+//                    if state_clone.player_mana_points < 0 {
+//                        continue;
+//                    }
+//
+//                    state_clone.amount_mana_points_spent += 173;
+//                    state_clone.boss_poison = true;
+//                    state_clone.boss_poison_turns_left = 6;
+//                }
+//
+//                4 => {
+//                    if state_clone.player_recharge {
+//                        continue;
+//                    }
+//
+//                    state_clone.player_mana_points -= 229;
+//
+//                    if state_clone.player_mana_points < 0 {
+//                        continue;
+//                    }
+//
+//                    state_clone.amount_mana_points_spent += 229;
+//                    state_clone.player_recharge = true;
+//                    state_clone.player_recharge_turns_left = 5;
+//                }
+//
+//                _ => {}
+//            }
+//
+//            // Apply effects
+//            if state_clone.player_recharge {
+//                state_clone.player_mana_points += 101;
+//                state_clone.player_recharge_turns_left -= 1;
+//
+//                if state_clone.player_recharge_turns_left == 0 {
+//                    state_clone.player_recharge = false;
+//                }
+//            }
+//
+//            if state_clone.player_shield {
+//                state_clone.player_shield_turns_left -= 1;
+//
+//                if state_clone.player_shield_turns_left == 0 {
+//                    state_clone.player_shield = false;
+//                }
+//            }
+//
+//            if state_clone.boss_poison {
+//                state_clone.boss_hit_points -= 3;
+//
+//                if state_clone.boss_hit_points <= 0 {
+//                    if state_clone.amount_mana_points_spent < minimum_amount_mana_points_spent {
+//                        minimum_amount_mana_points_spent = state_clone.amount_mana_points_spent;
+//                    }
+//
+//                    continue;
+//                }
+//
+//                state_clone.boss_poison_turns_left -= 1;
+//
+//                if state_clone.boss_poison_turns_left == 0 {
+//                    state_clone.boss_poison = false;
+//                }
+//            }
+//
+//            // Boss
+//            if state_clone.player_shield {
+//                state_clone.player_hit_points -= state_clone.boss_damage - 7;
+//            } else {
+//                state_clone.player_hit_points -= state_clone.boss_damage;
+//            }
+//
+//            if state_clone.player_hit_points <= 0 {
+//                continue;
+//            }
+//
+//            queue.push_back(state_clone);
+//        }
+//    }
+//
+//    minimum_amount_mana_points_spent
+//}
+//
+//mod part_1 {
+//    use crate::day_22::get_minimum_amount_mana_points_spent;
+//
+//    pub fn solve(input: &str) -> u16 {
+//        get_minimum_amount_mana_points_spent(&input, false)
+//    }
+//}
+//
+//mod part_2 {
+//    use crate::day_22::get_minimum_amount_mana_points_spent;
+//
+//    pub fn solve(input: &str) -> u16 {
+//        get_minimum_amount_mana_points_spent(&input, true)
+//    }
+//}
