@@ -1,5 +1,6 @@
 use regex::Regex;
 use std::cmp::Ordering;
+use std::collections::BinaryHeap;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct State {
@@ -10,12 +11,12 @@ struct State {
 }
 
 impl State {
-    fn get_initial_state(input: &str, player_hit_points: u8, player_mana: u16) -> State {
+    fn get_initial_state(input: &str, player_hit_points: u8, player_mana_points: u16) -> State {
         let boss = decode_input(&input);
 
         let player = Player {
             hit_points: player_hit_points,
-            mana_points: player_mana,
+            mana_points: player_mana_points,
             effects: vec![],
         };
 
@@ -27,10 +28,19 @@ impl State {
         }
     }
 
-    fn get_next_states(&self, spells: &Vec<Spell>, effects: &Vec<Effect>, print_log: bool) -> Vec<State> {
+    fn get_next_states(&self, spells: &Vec<Spell>, effects: &Vec<Effect>, print_log: bool, hard_mode: bool) -> Vec<State> {
         let mut next_states = Vec::new();
 
         let mut state_clone: State = self.clone().into();
+
+        if hard_mode {
+            state_clone.player.hit_points -= 1;
+
+            if state_clone.player.hit_points == 0 {
+                return next_states;
+            }
+        }
+
         state_clone.apply_effects(print_log);
 
         if state_clone.player_won() {
@@ -81,7 +91,7 @@ impl State {
                 match effect.effect_type {
                     EffectType::Recharge { amount } => {
                         self.log.push(format!("Recharge provides {} mana. Player's mana is now {}.", amount, self.player.mana_points + amount as u16))
-                    },
+                    }
                     _ => {}
                 }
 
@@ -366,8 +376,8 @@ enum EffectType {
 
 pub fn solve(input: &str) {
     println!("Day {}.", file!().chars().filter(|c| c.is_digit(10)).collect::<String>());
-    println!("Part 1: {}.", part_1::solve(&input, 50, 500, false));
-//    println!("Part 2: {}.", part_2::solve(&input));
+    println!("Part 1: {}.", part_1::solve(&input, 50, 500, false, false));
+    println!("Part 2: {}.", part_2::solve(&input, 50, 500, false, true));
     println!();
 }
 
@@ -399,60 +409,55 @@ fn get_effects() -> Vec<Effect> {
     ]
 }
 
-mod part_1 {
-    use crate::day_22::Effect;
-    use crate::day_22::Spell;
-    use std::collections::BinaryHeap;
-    use crate::day_22::State;
-    use crate::day_22::get_spells;
-    use crate::day_22::get_effects;
+fn get_minimum_amount_mana_points_spent(input: &str, player_hit_points: u8, player_mana_points: u16, print_log: bool, hard_mode: bool) -> u16 {
+    let mut initial_state = State::get_initial_state(&input, player_hit_points, player_mana_points);
 
-    pub fn solve(input: &str, player_hit_points: u8, player_mana: u16, print_log: bool) -> u16 {
-        let mut initial_state = State::get_initial_state(&input, player_hit_points, player_mana);
-
-        if print_log {
-            initial_state.log.push(State::get_log(&initial_state));
-        }
-
-        let spells = get_spells();
-        let effects = get_effects();
-        get_minimum_amount_mana_points_spent(&initial_state, &spells, &effects, print_log)
+    if print_log {
+        initial_state.log.push(State::get_log(&initial_state));
     }
 
-    fn get_minimum_amount_mana_points_spent(initial_state: &State, spells: &Vec<Spell>, effects: &Vec<Effect>, print_log: bool) -> u16 {
-        let mut minimum_amount_mana_points_spent = None;
-        let mut heap: BinaryHeap<State> = BinaryHeap::new();
-        heap.push(initial_state.clone().into());
+    let spells = get_spells();
+    let effects = get_effects();
+    let mut minimum_amount_mana_points_spent = None;
+    let mut heap: BinaryHeap<State> = BinaryHeap::new();
+    heap.push(initial_state.clone().into());
 
-        while let Some(state) = heap.pop() {
-            if match minimum_amount_mana_points_spent {
-                Some(amount) => state.amount_mana_points_spent > amount,
-                None => false
-            } {
-                continue;
-            }
-
-            if state.player_won() || state.boss_won() {
-                if state.player_won() && match minimum_amount_mana_points_spent {
-                    Some(amount) => state.amount_mana_points_spent < amount,
-                    None => true,
-                } {
-                    if print_log {
-                        println!();
-
-                        for (index, log) in state.log.iter().enumerate() {
-                            println!("{}. {}", index + 1, log);
-                        }
-                    }
-
-                    minimum_amount_mana_points_spent = Some(state.amount_mana_points_spent);
-                }
-            } else {
-                heap.extend(state.get_next_states(&spells, &effects, print_log));
-            }
+    while let Some(state) = heap.pop() {
+        if match minimum_amount_mana_points_spent {
+            Some(amount) => state.amount_mana_points_spent > amount,
+            None => false
+        } {
+            continue;
         }
 
-        minimum_amount_mana_points_spent.unwrap()
+        if state.player_won() || state.boss_won() {
+            if state.player_won() && match minimum_amount_mana_points_spent {
+                Some(amount) => state.amount_mana_points_spent < amount,
+                None => true,
+            } {
+                if print_log {
+                    println!();
+
+                    for (index, log) in state.log.iter().enumerate() {
+                        println!("{}. {}", index + 1, log);
+                    }
+                }
+
+                minimum_amount_mana_points_spent = Some(state.amount_mana_points_spent);
+            }
+        } else {
+            heap.extend(state.get_next_states(&spells, &effects, print_log, hard_mode));
+        }
+    }
+
+    minimum_amount_mana_points_spent.unwrap()
+}
+
+mod part_1 {
+    use crate::day_22::get_minimum_amount_mana_points_spent;
+
+    pub fn solve(input: &str, player_hit_points: u8, player_mana: u16, print_log: bool, hard_mode: bool) -> u16 {
+        get_minimum_amount_mana_points_spent(&input, player_hit_points, player_mana, print_log, hard_mode)
     }
 
     #[cfg(test)]
@@ -461,7 +466,7 @@ mod part_1 {
         let input = "Hit Points: 13
 Damage: 8";
 
-        assert_eq!(solve(input, 10, 250, true), 226);
+        assert_eq!(solve(input, 10, 250, false, false), 226);
     }
 
     #[cfg(test)]
@@ -470,6 +475,14 @@ Damage: 8";
         let input = "Hit Points: 14
 Damage: 8";
 
-        assert_eq!(solve(input, 10, 250, true), 641);
+        assert_eq!(solve(input, 10, 250, false, false), 641);
+    }
+}
+
+mod part_2 {
+    use crate::day_22::get_minimum_amount_mana_points_spent;
+
+    pub fn solve(input: &str, player_hit_points: u8, player_mana: u16, print_log: bool, hard_mode: bool) -> u16 {
+        get_minimum_amount_mana_points_spent(&input, player_hit_points, player_mana, print_log, hard_mode)
     }
 }
