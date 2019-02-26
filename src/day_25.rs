@@ -8,24 +8,18 @@ mod part_1 {
     use regex::Regex;
 
     pub fn solve(input: &str) -> u64 {
-        let (target_row, target_column) = decode_input(&input);
-        let mut row = 2;
-        let mut previous_number = 20151125;
+        let (row, column) = decode_input(&input);
+        let mut number = 20151125;
+        let diagonal_size = row as u64 + column as u64 - 1; // Row and column intersect on one number, thus the "- 1" to deduplicate
+        let amount_indexes_up_to_diagonal = (diagonal_size.pow(2) + diagonal_size) / 2; // https://en.wikipedia.org/wiki/Triangular_number#Formula
+        let iterations = amount_indexes_up_to_diagonal - row as u64; // Each row intersects with one number on the diagonal, so it acts as an offset
 
-        loop {
-            for column in 1..=row {
-                let result = previous_number * 252533 % 33554393;
-
-                if row - column + 1 == target_row
-                        && column == target_column {
-                    return result;
-                }
-
-                previous_number = result;
-            }
-
-            row += 1;
+        for _ in 0..iterations {
+            number *= 252533;
+            number %= 33554393;
         }
+
+        number
     }
 
     fn decode_input(input: &str) -> (u16, u16) {
